@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>组件-Component</title>
+    <script src="../js/react.js"></script>
+    <script src="../js/react-dom.js"></script>
+    <script src="https://cdn.bootcss.com/babel-standalone/6.22.1/babel.min.js"></script>
+</head>
+<body>
+<div id="example">
+    <p>Hello!</p>
+</div>
+<script type="text/babel">
+//################################################################################
+//  React 允许将代码封装成组件（component），然后像插入普通 HTML 标签一样，在网页中插入这个组件。
+//  React.createClass 方法就用于生成一个组件类
+//  组件类只能包含一个顶层标签，否则也会报错,如下（包含2个顶层元素，会报错）：
+//  var HelloMessage = React.createClass({
+//  render: function() {
+//    return <h1>Hello {this.props.name}</h1>
+//           <p>some text</p>;
+//                      }
+//                                      });
+//  添加组件属性，要注意 class 属性需要写成 className ，for 属性需要写成 htmlFor ，这是因为 class 和 for 是 JavaScript 的保留字。
+function component1() {
+    var HelloMessage = React.createClass({          //创建组建类HelloMessage,第一个字母必须大写，否则会报错
+        render : function () {
+            return <h1>Hello {this.props.name}</h1>;
+        }
+    });
+
+    ReactDOM.render(                                //所有组件类都必须有自己的 render 方法，用于输出组件
+        <HelloMessage name="John"/>,                //模板插入 <HelloMessage /> 时，会自动生成 HelloMessage 的一个实例
+        document.getElementById('example')
+    );
+}
+
+//##################################################################################
+//  this.props 对象的属性与组件的属性一一对应
+//  例外的是:this.props.children 属性,表示组件的所有子节点
+//  this.props.children的值有三种可能：
+//      （1）当前组件没有子节点，它就是 undefined ；
+//      （2）有一个子节点，数据类型是 object ；
+//      （3）有多个子节点，数据类型就是 array 。
+
+//  React 提供一个工具方法 React.Children 来处理 this.props.children
+//  用 React.Children.map 来遍历子节点，不用担心 this.props.children 的数据类型是 undefined 还是 object
+function component2() {
+    var NotesList = React.createClass({
+        render: function () {
+            return (
+                <ol>
+                    {
+                        React.Children.map(this.props.children,function (child) {
+                            return <li>{child}</li>;
+                        })
+                    }
+                </ol>
+            );
+        }
+    });
+    ReactDOM.render(
+            <NotesList>
+                <span>hello</span>                // NoteList 组件有两个 span 子节点，都可以通过 this.props.children 读取
+                <span>world</span>
+            </NotesList>,
+        document.body
+    );
+}
+
+//###############################################################################################
+//  组件的属性可以接受任意值，字符串、对象、函数等等都可以
+//  有时，我们需要一种机制，验证别人使用组件时，提供的参数是否符合要求,即组件类的PropTypes属性
+function component3() {
+    var MyTitle = React.createClass({
+        propTypes: {
+            title: React.PropTypes.string.isRequired,       //title属性是必须的，且要是字符串
+        },
+        render: function () {
+            return <h1> {this.props.title} </h1>;
+        }
+    });
+    var data = 123;                                         //data为数字，所以就通不过验证，会报错
+    ReactDOM.render(
+            <MyTitle title={data}/>,
+        document.body
+    );
+}
+
+//###############################################################################################
+//  getDefaultProps 方法可以用来设置组件属性的默认值
+function component4() {
+    var MyTitle = React.createClass({
+        getDefaultProps : function () {
+            return {
+                title : 'This is the default value from function "getDefaultProps".'
+            };
+        },
+        render : function () {
+            return <h1>{this.props.title}</h1>;
+        }
+    });
+    ReactDOM.render(
+        <MyTitle />,
+        document.body
+    );
+}
+component4();
+</script>
+</body>
+</html>
